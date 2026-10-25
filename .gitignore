@@ -1,0 +1,15 @@
+# dependencies
+node_modules/
+
+# archives are built for Releases, not committed
+*.zip
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log
+
+# private files — not part of the public library
+Chart-Maker.html
+developers.html
+developers-locales/

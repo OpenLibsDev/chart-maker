@@ -1,0 +1,30 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build
+        run: node build.mjs
+      - name: Test
+        run: node tests/smoke.js && node tests/locale-export.js
+      - name: Package library
+        run: |
+          mkdir -p artifacts
+          zip -r "artifacts/chart-maker-${GITHUB_REF_NAME}.zip" dist chart-maker.d.ts README.md LICENSE
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*.zip
+          generate_release_notes: true

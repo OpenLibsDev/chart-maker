@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build
+        run: node build.mjs
+      - name: Test
+        run: node tests/smoke.js && node tests/locale-export.js
+      - name: Verify src/ version stamp and dist/ are up to date
+        run: git diff --exit-code -- src dist || (echo "src/dist out of date — run 'node build.mjs' and commit the result" && exit 1)
