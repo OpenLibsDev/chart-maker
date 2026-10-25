@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-i18n="page_title">Chart-Maker — chart & diagram builder</title>
+<meta name="description" id="metaDesc" content="Free web chart & diagram builder: 28 chart types, export to PNG/JPEG/WEBP/AVIF/SVG, advanced options and effects, light/dark themes, 29 languages.">
+<style>
+  :root { --fg:#212529; --bg:#fff; --border:#ced4da; --muted:#6c757d; --cm-input-bg:var(--bg); --cm-input-fg:var(--fg); --cm-input-bd:var(--border); }
+  body.dark { --fg:#dee2e6; --bg:#1a1d20; --border:#495057; --muted:#adb5bd; }
+  * { box-sizing:border-box; }
+  html, body { max-width:100%; overflow-x:hidden; }
+  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--fg); background:var(--bg); }
+  header,main,footer { max-width:1150px; margin:0 auto; padding:1rem; }
+  header { display:flex; gap:1rem; align-items:center; flex-wrap:wrap; border-bottom:1px solid var(--border); }
+  .brand { font-weight:700; margin-right:auto; }
+  select,input,button,textarea { font:inherit; color:var(--fg); background:var(--bg); border:1px solid var(--border); border-radius:.375rem; padding:.35rem .5rem; max-width:100%; }
+  button { cursor:pointer; }
+  h1 { font-size:1.6rem; margin:.3rem 0; }
+  p.lead { color:var(--muted); margin:.2rem 0 1rem; }
+  img, canvas { max-width:100%; }
+  .layout { display:flex; gap:1rem; flex-wrap:wrap; align-items:flex-start; }
+  .panel { flex:1 1 300px; min-width:0; display:flex; flex-direction:column; gap:.6rem; }
+  .stage-col { flex:2 1 320px; min-width:0; display:flex; flex-direction:column; gap:.4rem; border:1px solid var(--border); border-radius:.5rem; padding:.5rem; background:var(--bg); }
+  .stage { height:60vh; min-height:320px; }
+  .field { display:flex; flex-direction:column; gap:.2rem; }
+  .row { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:.5rem; }
+  .row > * { flex:1; min-width:0; }
+  textarea { width:100%; min-height:150px; font-family:ui-monospace,monospace; font-size:.85rem; }
+  .msg { color:var(--muted); font-size:.85rem; min-height:1em; }
+  fieldset { border:1px solid var(--border); border-radius:.5rem; min-width:0; }
+
+    .cm-tbl{width:100%;border-collapse:collapse;margin-bottom:.4rem}
+    .cm-tbl th,.cm-tbl td{padding:.15rem .25rem;border-bottom:1px solid rgba(128,128,128,.35);text-align:left;vertical-align:middle}
+    .cm-in{width:100%;box-sizing:border-box;padding:.2rem .4rem;border:1px solid var(--cm-input-bd,rgba(128,128,128,.5));border-radius:.25rem;background:var(--cm-input-bg,#fff);color:var(--cm-input-fg,#212529);font:inherit}
+    .cm-in option{background:var(--cm-input-bg,#fff);color:var(--cm-input-fg,#212529)}
+    body.dark .cm-in, body.dark .cm-in option{background:#1a1d20;color:#dee2e6;border-color:#495057}
+    .cm-btn-rm{padding:.1rem .45rem;border:1px solid rgba(128,128,128,.5);border-radius:.25rem;background:transparent;color:inherit;cursor:pointer}
+    .cm-btn-add{padding:.2rem .55rem;border:1px solid rgba(128,128,128,.5);border-radius:.25rem;background:transparent;color:inherit;cursor:pointer;margin-top:.3rem}
+    .cm-card{border:1px solid rgba(128,128,128,.35);border-radius:.375rem;padding:.4rem;margin:.3rem 0}
+    .cm-row2{display:flex;gap:.4rem;margin-bottom:.3rem}
+    .cm-lbl{font-size:.85rem;display:block;margin:.2rem 0}
+
+    .dd{border:1px solid var(--border);border-radius:.375rem}
+    .dd>summary{cursor:pointer;padding:.35rem .5rem;list-style:none;user-select:none}
+    .dd>summary::-webkit-details-marker{display:none}
+    .dd>summary::after{content:"\25be";float:right;opacity:.6}
+    .dd[open]>summary::after{content:"\25b4"}
+    .dd-body{padding:.5rem;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:.5rem}
+    .dd-row{display:flex;gap:.4rem;align-items:center}
+    input[type=range]{width:100%}
+    .icon-btn{display:inline-flex;align-items:center;gap:.35rem}
+    .cm-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-start;justify-content:center;z-index:1050;padding:3rem 1rem;overflow:auto}
+    .cm-modal.open{display:flex}
+    .cm-modal-box{background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:.5rem;max-width:440px;width:100%;padding:1rem;display:flex;flex-direction:column;gap:.8rem}
+    .cm-modal-head{display:flex;justify-content:space-between;align-items:center;gap:1rem}
+    .cm-modal-head h2{font-size:1.1rem;margin:0}
+    .cm-close{border:1px solid var(--border);border-radius:.375rem;background:transparent;color:inherit;padding:.15rem .5rem;cursor:pointer}
+    .btn-link{background:transparent;border:1px solid var(--border);display:block;text-align:center;text-decoration:none;color:var(--fg);padding:.5rem;border-radius:.375rem}
+    .btn-link:hover{background:rgba(128,128,128,.12)}
+    .cm-scroll{overflow-x:auto;max-width:100%}
+    .cm-scroll>table{min-width:max-content}
+    .cm-scroll .cm-in{width:auto;min-width:5rem}
+    .cm-scroll input[type=date].cm-in{min-width:9rem}
+    .chart-data{margin-top:0;font-size:13px;line-height:1.55}
+    .chart-data h2{font-size:1rem;margin:.2rem 0 .35rem}
+    .chart-data .cd-item{display:inline-block;margin:0 1.1rem .2rem 0;white-space:nowrap}
+    .chart-data:empty{display:none}
+</style>
+</head>
+<body>
+<header>
+  <span class="brand">Chart-Maker <small style="color:var(--muted)">library demo</small></span>
+  <select id="locale"><option value="ar">العربية</option><option value="bo">བོད་ཡིག</option><option value="ca">Català</option><option value="cs">Čeština</option><option value="de">Deutsch</option><option value="en">English</option><option value="es">Español</option><option value="eu">Euskara</option><option value="fa">فارسی</option><option value="fr">Français</option><option value="he">עברית</option><option value="hi">हिन्दी</option><option value="hr">Hrvatski</option><option value="hu">Magyar</option><option value="id">Bahasa Indonesia</option><option value="is">Íslenska</option><option value="it">Italiano</option><option value="ja">日本語</option><option value="ko">한국어</option><option value="pl">Polski</option><option value="pt">Português</option><option value="pt-BR">Português (Brasil)</option><option value="ro">Română</option><option value="ru">Русский</option><option value="sq">Shqip</option><option value="tr">Türkçe</option><option value="uk">Українська</option><option value="zh-Hans">简体中文</option><option value="zh-Hant">繁體中文</option></select>
+  <button id="settingsBtn" type="button" data-i18n="settings"></button>
+</header>
+
+<main>
+  <h1 id="h1">Chart & graph builder</h1>
+  <p class="lead" id="lead">28 chart types with advanced options and effects, export to PNG, JPEG, WEBP, AVIF and SVG, light and dark themes, and 29 languages.</p>
+
+  <div class="layout">
+    <div class="panel">
+      <div class="row">
+        <button id="undo" type="button" disabled></button>
+        <button id="redo" type="button" disabled></button>
+      </div>
+      <details class="dd">
+        <summary><span id="lblAnim"></span></summary>
+        <div class="dd-body">
+          <label class="dd-row"><input type="checkbox" id="anim" checked> <span data-i18n="animation"></span></label>
+          <div class="field"><label class="cm-lbl" data-i18n="f_anim_duration"></label><input type="range" id="animDur" min="0" max="2000" step="100" value="1000"></div>
+          <div class="field"><label class="cm-lbl" data-i18n="f_anim_easing"></label><select id="animEase"><option value="linear">linear</option><option value="easeInOutQuad">easeInOutQuad</option><option value="easeOutQuart">easeOutQuart</option><option value="easeOutBounce">easeOutBounce</option><option value="easeOutElastic">easeOutElastic</option></select></div>
+        </div>
+      </details>
+      <div class="field"><label id="lblType"></label><select id="type"></select></div>
+      <div class="field"><label id="lblTitle"></label><input id="title" type="text"></div>
+      <div class="field"><label id="lblDataset"></label><input id="dataset" type="text"></div>
+
+      <fieldset>
+        <legend id="lblBg"></legend>
+        <div class="field"><select id="bgType">
+          <option value="transparent"></option><option value="color"></option><option value="image"></option>
+        </select></div>
+        <input id="bgColor" type="color" value="#ffffff" style="display:none;margin-top:.4rem">
+        <input id="bgImage" type="file" accept="image/*" style="display:none;margin-top:.4rem">
+        <button id="bgRemove" type="button" style="display:none;margin-top:.4rem"></button>
+        <details class="dd" style="margin-top:.5rem">
+          <summary data-i18n="f_colors_t"></summary>
+          <div class="dd-body">
+            <div class="field"><label class="cm-lbl" data-i18n="f_chart_color"></label><input id="chartColor" type="color" value="#4e79a7"></div>
+            <div class="field"><label class="cm-lbl" data-i18n="f_grid_color"></label><input id="gridColor" type="color" value="#888888"></div>
+            <div class="field"><label class="cm-lbl" data-i18n="f_title_color"></label><input id="titleColor" type="color" value="#212529"></div>
+            <div class="field"><label class="cm-lbl" data-i18n="f_legend_color"></label><input id="legendColor" type="color" value="#212529"></div>
+            <div class="field"><label class="cm-lbl" data-i18n="f_tick_color"></label><input id="tickColor" type="color" value="#212529"></div>
+            <div class="field"><label class="cm-lbl" data-i18n="f_data_text_color"></label><input id="dataTextColor" type="color" value="#212529"></div>
+            <div class="field"><label class="cm-lbl" data-i18n="f_data_bg_color"></label><input id="dataBgColor" type="color" value="#ffffff"></div>
+            <button id="colorsReset" type="button" data-i18n="colors_reset" style="margin-top:.4rem"></button>
+          </div>
+        </details>
+      </fieldset>
+
+      <div class="field"><label class="cm-lbl" for="dataTitle" data-i18n="f_data_title"></label><input id="dataTitle" type="text" class="cm-in" style="font-weight:600">
+        <div id="dataForm"></div>
+        <details class="dd" style="margin-top:.5rem">
+          <summary data-i18n="adv_title"></summary>
+          <div class="dd-body">
+            <div class="field" id="row_subtitle"><label class="cm-lbl" data-i18n="f_subtitle"></label><input type="text" id="subTitle" class="cm-in"></div>
+            <div class="field" id="row_tension"><label class="cm-lbl" data-i18n="f_tension"></label><input type="range" id="tension" min="0" max="0.5" step="0.05" value="0"></div>
+            <label class="dd-row" id="row_stepped"><input type="checkbox" id="steppedChk"> <span data-i18n="f_stepped"></span></label>
+            <label class="dd-row" id="row_fill"><input type="checkbox" id="fillChk"> <span data-i18n="f_fill"></span></label>
+            <label class="dd-row" id="row_spangaps"><input type="checkbox" id="spanGapsChk"> <span data-i18n="f_spangaps"></span></label>
+            <label class="dd-row" id="row_stacked"><input type="checkbox" id="stackedChk"> <span data-i18n="f_stacked"></span></label>
+            <label class="dd-row" id="row_logy"><input type="checkbox" id="logYChk"> <span data-i18n="f_logy"></span></label>
+            <label class="dd-row" id="row_decimation"><input type="checkbox" id="decimationChk"> <span data-i18n="f_decimation"></span></label>
+            <div class="field" id="row_legend"><label class="cm-lbl" data-i18n="f_legend"></label>
+              <select id="legendSel" class="cm-in"><option value="top" data-i18n="leg_top"></option><option value="bottom" data-i18n="leg_bottom"></option><option value="left" data-i18n="leg_left"></option><option value="right" data-i18n="leg_right"></option><option value="off" data-i18n="leg_off"></option></select></div>
+            <div class="field" id="row_point"><label class="cm-lbl" data-i18n="f_point_radius"></label><input type="range" id="pointRadius" min="0" max="10" step="1" value="3"></div>
+            <div class="field" id="row_linewidth"><label class="cm-lbl" data-i18n="f_line_width"></label><input type="range" id="lineWidth" min="1" max="6" step="1" value="3"></div>
+            <label class="dd-row" id="row_dashed"><input type="checkbox" id="dashedChk"> <span data-i18n="f_dashed"></span></label>
+            <label class="dd-row" id="row_datalabels"><input type="checkbox" id="datalabelsChk"> <span data-i18n="f_datalabels"></span></label>
+            <label class="dd-row" id="row_zoom"><input type="checkbox" id="zoomChk"> <span data-i18n="f_zoom"></span></label>
+            <label class="dd-row" id="row_trendline"><input type="checkbox" id="trendlineChk"> <span data-i18n="f_trendline"></span></label>
+            <label class="dd-row" id="row_crosshair"><input type="checkbox" id="crosshairChk"> <span data-i18n="f_crosshair"></span></label>
+            <div id="row_annotations">
+              <label class="cm-lbl" data-i18n="f_annotations"></label>
+              <div id="annBox"></div>
+              <button class="cm-btn-add" id="addAnnBtn" type="button" data-i18n="add_annotation"></button>
+            </div>
+          </div>
+        </details>
+        <details style="margin-top:.5rem"><summary style="cursor:pointer">JSON</summary>
+          <textarea id="data" spellcheck="false"></textarea>
+          <button id="applyData" type="button"></button>
+        </details>
+      </div>
+
+      <fieldset>
+        <legend id="lblExport"></legend>
+        <div class="row">
+          <div class="field"><label id="lblFilename"></label><input id="filename" type="text" value="chart"></div>
+          <div class="field"><label id="lblFormat"></label>
+            <select id="format"><option>png</option><option>jpeg</option><option>webp</option><option>avif</option><option>svg</option><option>pdf</option></select></div>
+        </div>
+        <div class="row">
+          <div class="field"><label id="lblW"></label><input id="w" type="number" min="1" placeholder="auto"></div>
+          <div class="field"><label id="lblH"></label><input id="h" type="number" min="1" placeholder="auto"></div>
+        </div>
+        <label style="display:flex;gap:.4rem;align-items:center;margin-bottom:.5rem"><input type="checkbox" id="expData" checked> <span data-i18n="exp_data"></span></label>
+        <div class="row">
+          <button id="download" type="button"></button>
+          <button id="print" type="button"></button>
+          <button id="save" type="button"></button>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend id="lblImport"></legend>
+        <div class="field"><label id="lblLoad"></label><input id="load" type="file" accept=".json"></div>
+      </fieldset>
+      <div class="msg" id="msg"></div>
+      <details style="margin-top:.4rem"><summary id="lblJournal" style="cursor:pointer"></summary>
+        <div id="journal" style="max-height:180px;overflow:auto;font-family:ui-monospace,monospace;font-size:.8rem;white-space:pre-wrap"></div>
+        <button id="clearJournal" type="button" style="margin-top:.3rem"></button>
+      </details>
+    </div>
+
+    <div class="stage-col">
+      <div class="stage"><div id="chart" style="width:100%;height:100%"></div></div>
+      <div class="chart-data" id="chartData"></div>
+    </div>
+  </div>
+</main>
+
+<footer style="color:var(--muted);border-top:1px solid var(--border);display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center">
+  <span>Chart-Maker</span><span>·</span>
+  <span><span id="lblFootV"></span> <span id="footVersion"></span></span><span>·</span>
+  <span><span id="lblFootC"></span> <span id="footCreated"></span></span>
+    <span>·</span>
+    <a id="openlibsLink" href="#" target="_blank" rel="noopener" style="color:var(--muted)">OpenLibs chart-maker</a>
+</footer>
+
+<div class="cm-modal" id="settingsModal">
+  <div class="cm-modal-box">
+    <div class="cm-modal-head">
+      <h2 data-i18n="settings"></h2>
+      <button type="button" class="cm-close" id="settingsClose" aria-label="Close">&times;</button>
+    </div>
+    <div class="field"><label class="cm-lbl" data-i18n="set_theme"></label>
+      <select id="setTheme"><option value="light" data-i18n="theme_light"></option><option value="dark" data-i18n="theme_dark"></option><option value="auto" data-i18n="theme_auto"></option></select></div>
+    <div class="field"><label class="cm-lbl" data-i18n="set_language"></label>
+      <select id="setLang"><option value="ar">العربية</option><option value="bo">བོད་ཡིག</option><option value="ca">Català</option><option value="cs">Čeština</option><option value="de">Deutsch</option><option value="en">English</option><option value="es">Español</option><option value="eu">Euskara</option><option value="fa">فارسی</option><option value="fr">Français</option><option value="he">עברית</option><option value="hi">हिन्दी</option><option value="hr">Hrvatski</option><option value="hu">Magyar</option><option value="id">Bahasa Indonesia</option><option value="is">Íslenska</option><option value="it">Italiano</option><option value="ja">日本語</option><option value="ko">한국어</option><option value="pl">Polski</option><option value="pt">Português</option><option value="pt-BR">Português (Brasil)</option><option value="ro">Română</option><option value="ru">Русский</option><option value="sq">Shqip</option><option value="tr">Türkçe</option><option value="uk">Українська</option><option value="zh-Hans">简体中文</option><option value="zh-Hant">繁體中文</option></select></div>
+    <a id="allAppsLink" class="btn-link" href="#" target="_blank" rel="noopener" data-i18n="all_apps"></a>
+  </div>
+</div>
+
+<script src="../dist/umd/chart-maker.umd.min.js"></script>
+<script>
+(function () {
+  "use strict";
+  const ChartMaker = window.ChartMaker;
+  /* UMD build: Chart.js, the chart plugins and the helper libraries are classic scripts loaded on demand from jsDelivr (no import map). Replace these with your own server paths to self-host. */
+  ChartMaker.setUrls({
+    chartUrl: "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js",
+    avifUrl: "https://cdn.jsdelivr.net/npm/@jsquash/avif@1.3.0/+esm",
+    modules: {
+      topojson:   "https://cdn.jsdelivr.net/npm/topojson-client@3",
+      matrix:     "https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2",
+      treemap:    "https://cdn.jsdelivr.net/npm/chartjs-chart-treemap@3",
+      sankey:     "https://cdn.jsdelivr.net/npm/chartjs-chart-sankey@0.14.0",
+      boxplot:    "https://cdn.jsdelivr.net/npm/@sgratzl/chartjs-chart-boxplot@4",
+      wordcloud:  "https://cdn.jsdelivr.net/npm/chartjs-chart-wordcloud@4",
+      geo:        "https://cdn.jsdelivr.net/npm/chartjs-chart-geo@4",
+      errorbar:   "https://cdn.jsdelivr.net/npm/chartjs-chart-error-bars@4",
+      financial:  "https://cdn.jsdelivr.net/npm/chartjs-chart-financial@0.2.1",
+      funnel:     "https://cdn.jsdelivr.net/npm/chartjs-chart-funnel",
+      venn:       "https://cdn.jsdelivr.net/npm/chartjs-chart-venn@4",
+      graph:      "https://cdn.jsdelivr.net/npm/chartjs-chart-graph@4",
+      dateadapter:"https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3/dist/chartjs-adapter-date-fns.bundle.min.js",
+      datalabels: "https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2",
+      zoom:       "https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2",
+      annotation: "https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3",
+      trendline:  "https://cdn.jsdelivr.net/npm/chartjs-plugin-trendline",
+      crosshair:  "https://cdn.jsdelivr.net/npm/chartjs-plugin-crosshair",
+      svg:        "https://cdn.jsdelivr.net/npm/canvas2svg@1.0.16",
+      mathjs:     "https://cdn.jsdelivr.net/npm/mathjs@12/lib/browser/math.js",
+      pdf:        "https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"
+    }
+  });
+  /* LANGUAGE: taken from <html lang="xx">, or set the code here. Codes: ar bo ca cs de en es eu fa fr he hi hr hu id is it ja ko pl pt pt-BR ro ru sq tr uk zh-Hans zh-Hant */
+  let savedLang = null; try { savedLang = localStorage.getItem("cm_lang"); } catch (e) {}
+  const LANG = (savedLang || document.documentElement.getAttribute("lang") || "en");
+  /* PATH TO THE locales/ FOLDER: next to the page by default. If the page is deeper, use an absolute path from the site root, e.g. "/chart-maker/locales/" (with a trailing slash). */
+  const LOCALE_BASE = "../dist/umd/locales/";
+  const cm = ChartMaker.create("#chart", { locale: LANG, urls: { worldUrl: "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json" } });
+  let darkMode = false;
+  let themeMode = "auto";
+  const THEME_DARK = { fg:"#dee2e6", surface:"#2b3035", grid:"rgba(255,255,255,.22)" };
+  const THEME_LIGHT = { fg:"#212529", surface:"#ffffff", grid:"rgba(0,0,0,.18)" };
+  const $ = function (id) { return document.getElementById(id); };
+  let state = cm.getState();
+  function commit() { cm.setState(JSON.parse(JSON.stringify(state))); }
+
+  let TYPEINFO = {}, countriesCache = null;
+  function buildTypesInfo() { TYPEINFO = {}; cm.getTypes().forEach(function (tp) { TYPEINFO[tp.key] = tp; }); }
+  function inputMode() { return (TYPEINFO[state.chartType] || { input: "lv" }).input; }
+  function parseNums(s) { return String(s).split(",").map(function (x) { return Number(x.trim()); }).filter(function (n) { return !isNaN(n); }); }
+  function parseList(s) { return String(s).split(",").map(function (x) { return x.trim(); }).filter(function (x) { return x.length; }); }
+  function mkInput(type, val, on, ph) { const el = document.createElement("input"); el.type = type; el.className = "cm-in"; el.value = val; if (ph) el.placeholder = ph; el.addEventListener("change", on); return el; }
+  function rmBtn(on) { const b = document.createElement("button"); b.type = "button"; b.className = "cm-btn-rm"; b.textContent = "\u00d7"; b.addEventListener("click", on); return b; }
+  function addBtnEl(label, on) { const b = document.createElement("button"); b.type = "button"; b.className = "cm-btn-add"; b.textContent = "+ " + label; b.addEventListener("click", on); return b; }
+  function applyNum(row, key, raw, el) {
+    const n = cm.evalNumber(raw);
+    if (!isNaN(n)) { row[key] = n; if (el) el.value = n; commit(); return; }
+    if (!cm.mathReady()) { cm.loadMath().then(function () { const n2 = cm.evalNumber(raw); row[key] = isFinite(n2) ? n2 : 0; if (el) el.value = row[key]; commit(); }).catch(function () { row[key] = 0; if (el) el.value = 0; commit(); }); }
+    else { row[key] = 0; if (el) el.value = 0; commit(); }
+  }
+  function buildFunc() {
+    if (!state.func) state.func = { expr: "sin(x)", xmin: -10, xmax: 10, samples: 200 };
+    const f = state.func, wrap = document.createElement("div");
+    function row(key, el) { const l = document.createElement("label"); l.className = "cm-lbl"; l.textContent = cm.t(key); wrap.appendChild(l); wrap.appendChild(el); }
+    row("f_expr", mkInput("text", f.expr, function (e) { f.expr = e.target.value; commit(); }, "sin(x)"));
+    row("f_xmin", mkInput("number", f.xmin, function (e) { f.xmin = Number(e.target.value); commit(); }));
+    row("f_xmax", mkInput("number", f.xmax, function (e) { f.xmax = Number(e.target.value); commit(); }));
+    row("f_samples", mkInput("number", f.samples, function (e) { f.samples = Number(e.target.value); commit(); }));
+    return wrap;
+  }
+  function buildTable(cols, arr, def) {
+    const wrap = document.createElement("div");
+    const tbl = document.createElement("table"); tbl.className = "cm-tbl";
+    const thead = document.createElement("thead"); const htr = document.createElement("tr");
+    cols.forEach(function (c) { const th = document.createElement("th"); th.textContent = cm.t(c.head); htr.appendChild(th); });
+    const tha = document.createElement("th"); tha.textContent = cm.t("col_action"); htr.appendChild(tha);
+    thead.appendChild(htr); tbl.appendChild(thead);
+    const tb = document.createElement("tbody");
+    arr.forEach(function (row, i) {
+      const tr = document.createElement("tr");
+      cols.forEach(function (c) {
+        const td = document.createElement("td");
+        if (c.cell) td.appendChild(c.cell(row));
+        else if (c.type === "number") { const el = mkInput("text", row[c.key], null, c.ph ? cm.t(c.ph) : ""); el.addEventListener("change", function (e) { applyNum(row, c.key, e.target.value, el); }); td.appendChild(el); }
+        else td.appendChild(mkInput(c.type, row[c.key], function (e) { row[c.key] = e.target.value; commit(); }, c.ph ? cm.t(c.ph) : ""));
+        tr.appendChild(td);
+      });
+      const tda = document.createElement("td"); tda.appendChild(rmBtn(function () { arr.splice(i, 1); renderInputs(); commit(); })); tr.appendChild(tda);
+      tb.appendChild(tr);
+    });
+    tbl.appendChild(tb); const sc = document.createElement("div"); sc.className = "cm-scroll"; sc.appendChild(tbl); wrap.appendChild(sc);
+    wrap.appendChild(addBtnEl(cm.t("add_row"), function () { arr.push(def()); renderInputs(); commit(); }));
+    return wrap;
+  }
+  function buildMulti() {
+    const wrap = document.createElement("div"); const m = state.multi;
+    const cl = document.createElement("label"); cl.textContent = cm.t("f_categories"); cl.className = "cm-lbl"; wrap.appendChild(cl);
+    wrap.appendChild(mkInput("text", m.labels.join(", "), function (e) { m.labels = parseList(e.target.value); commit(); }));
+    const combo = (TYPEINFO[state.chartType] || {}).combo;
+    m.datasets.forEach(function (ds, i) {
+      const card = document.createElement("div"); card.className = "cm-card";
+      const top = document.createElement("div"); top.className = "cm-row2";
+      top.appendChild(mkInput("text", ds.label, function (e) { ds.label = e.target.value; commit(); }));
+      if (combo) { const sel = document.createElement("select"); sel.className = "cm-in"; ["bar", "line"].forEach(function (tp) { const o = document.createElement("option"); o.value = tp; o.textContent = cm.t("type_" + tp); sel.appendChild(o); }); sel.value = ds.type || "bar"; sel.addEventListener("change", function (e) { ds.type = e.target.value; commit(); }); top.appendChild(sel); }
+      top.appendChild(rmBtn(function () { m.datasets.splice(i, 1); renderInputs(); commit(); }));
+      card.appendChild(top);
+      const vl = document.createElement("label"); vl.textContent = cm.t("col_values"); vl.className = "cm-lbl"; card.appendChild(vl);
+      card.appendChild(mkInput("text", ds.data.join(", "), function (e) { ds.data = parseNums(e.target.value); commit(); }, "1, 2, 3"));
+      wrap.appendChild(card);
+    });
+    const base = combo ? "bar" : (TYPEINFO[state.chartType] || { ctype: "bar" }).ctype;
+    wrap.appendChild(addBtnEl(cm.t("add_dataset"), function () { m.datasets.push({ label: "Set " + (m.datasets.length + 1), type: base, data: m.labels.map(function () { return 0; }) }); renderInputs(); commit(); }));
+    return wrap;
+  }
+  function countrySelect(cur, on) { const sel = document.createElement("select"); sel.className = "cm-in"; let has = false; countriesCache.forEach(function (c) { const o = document.createElement("option"); o.value = c.value; o.textContent = c.label; if (c.value === cur) has = true; sel.appendChild(o); }); if (!has && cur) { const o = document.createElement("option"); o.value = cur; o.textContent = cur; sel.insertBefore(o, sel.firstChild); } sel.value = cur; sel.addEventListener("change", on); return sel; }
+  function advRelevant(type) {
+    let info = TYPEINFO[type] || {}; let ct = info.ctype;
+    let lineish = (ct === "line") || type === "area" || type === "multiLine";
+    let cartesian = ["bar","line","area","horizontalBar","scatter","bubble","stackedBar","groupedBar","multiLine","combo","errorBar","candlestick","ohlc"].indexOf(type) >= 0;
+    let multiish = ["bar","line","area","horizontalBar","stackedBar","groupedBar","multiLine","combo"].indexOf(type) >= 0;
+    let dataish = ["bar","line","area","horizontalBar","pie","doughnut","radar","polarArea","scatter","bubble","stackedBar","groupedBar","multiLine","combo","errorBar"].indexOf(type) >= 0;
+    return { row_subtitle:true, row_tension:lineish, row_stepped:lineish, row_fill:lineish, row_spangaps:lineish, row_decimation:(lineish||type==="scatter"), row_logy:cartesian, row_stacked:multiish, row_datalabels:dataish, row_zoom:cartesian, row_annotations:cartesian, row_trendline:(lineish||type==="scatter"), row_crosshair:cartesian, row_legend:true, row_point:(lineish||type==="scatter"||type==="bubble"), row_linewidth:lineish, row_dashed:lineish };
+  }
+  function applyAdvVisibility() {
+    let r = advRelevant(state.chartType);
+    Object.keys(r).forEach(function (id) { let el = document.getElementById(id); if (el) el.style.display = r[id] ? "" : "none"; });
+  }
+  function buildAnnUI() {
+    const box = $("annBox"); if (!box) return; box.innerHTML = "";
+    if (!state.annotations) state.annotations = [];
+    state.annotations.forEach(function (a, i) {
+      const card = document.createElement("div"); card.className = "cm-card";
+      const r1 = document.createElement("div"); r1.className = "cm-row2";
+      const tSel = document.createElement("select"); tSel.className = "cm-in";
+      [["line","ann_line"],["box","ann_box"]].forEach(function (o) { const op=document.createElement("option"); op.value=o[0]; op.textContent=cm.t(o[1]); tSel.appendChild(op); });
+      tSel.value = a.type || "line"; tSel.addEventListener("change", function (e) { a.type=e.target.value; commit(); buildAnnUI(); });
+      const aSel = document.createElement("select"); aSel.className = "cm-in";
+      [["y","col_y"],["x","col_x"]].forEach(function (o) { const op=document.createElement("option"); op.value=o[0]; op.textContent=cm.t(o[1]); aSel.appendChild(op); });
+      aSel.value = a.axis || "y"; aSel.addEventListener("change", function (e) { a.axis=e.target.value; commit(); });
+      r1.appendChild(tSel); r1.appendChild(aSel);
+      r1.appendChild(rmBtn(function () { state.annotations.splice(i,1); commit(); buildAnnUI(); }));
+      card.appendChild(r1);
+      const r2 = document.createElement("div"); r2.className = "cm-row2";
+      r2.appendChild(mkInput("number", a.value != null ? a.value : 0, function (e) { a.value=Number(e.target.value); commit(); }, cm.t("col_value")));
+      if ((a.type || "line") === "box") r2.appendChild(mkInput("number", a.value2 != null ? a.value2 : 0, function (e) { a.value2=Number(e.target.value); commit(); }, cm.t("ann_value2")));
+      card.appendChild(r2);
+      const r3 = document.createElement("div"); r3.className = "cm-row2";
+      r3.appendChild(mkInput("text", a.label || "", function (e) { a.label=e.target.value; commit(); }, cm.t("col_label")));
+      const col = mkInput("color", a.color || "#e15759", function (e) { a.color=e.target.value; commit(); }); col.style.maxWidth = "3rem";
+      r3.appendChild(col);
+      card.appendChild(r3);
+      box.appendChild(card);
+    });
+  }
+  function renderInputs() {
+    buildTypesInfo();
+    applyAdvVisibility();
+    buildAnnUI();
+    const area = document.getElementById("dataForm"); if (!area) return; area.innerHTML = ""; const mode = inputMode();
+    if (mode === "lv") area.appendChild(buildTable([{head:"col_label",key:"label",type:"text"},{head:"col_value",key:"value",type:"number"}], state.lv, function(){return{label:"",value:0};}));
+    else if (mode === "xy") area.appendChild(buildTable([{head:"col_x",key:"x",type:"number"},{head:"col_y",key:"y",type:"number"}], state.xy, function(){return{x:0,y:0};}));
+    else if (mode === "xyr") area.appendChild(buildTable([{head:"col_x",key:"x",type:"number"},{head:"col_y",key:"y",type:"number"},{head:"col_r",key:"r",type:"number"}], state.xyr, function(){return{x:0,y:0,r:5};}));
+    else if (mode === "box") area.appendChild(buildTable([{head:"col_label",key:"label",type:"text"},{head:"col_values",key:"values",type:"text",ph:"col_values"}], state.box, function(){return{label:"",values:""};}));
+    else if (mode === "tree") area.appendChild(buildTable([{head:"col_label",key:"label",type:"text"},{head:"col_value",key:"value",type:"number"},{head:"col_group",key:"group",type:"text"}], state.tree, function(){return{label:"",value:0,group:""};}));
+    else if (mode === "matrix") area.appendChild(buildTable([{head:"col_x",key:"x",type:"text"},{head:"col_y",key:"y",type:"text"},{head:"col_v",key:"v",type:"number"}], state.matrix, function(){return{x:"",y:"",v:0};}));
+    else if (mode === "sankey") area.appendChild(buildTable([{head:"col_from",key:"from",type:"text"},{head:"col_to",key:"to",type:"text"},{head:"col_flow",key:"flow",type:"number"}], state.sankey, function(){return{from:"",to:"",flow:1};}));
+    else if (mode === "geo") { if (!countriesCache) { const d=document.createElement("div"); d.className="cm-lbl"; d.textContent=cm.t("geo_loading"); area.appendChild(d); cm.getCountries().then(function(l){countriesCache=l; renderInputs();}).catch(function(){}); } else { area.appendChild(buildTable([{head:"col_region",key:"region",cell:function(row){return countrySelect(row.region, function(e){row.region=e.target.value; commit();});}},{head:"col_value",key:"value",type:"number"}], state.geo, function(){return{region:countriesCache[0]?countriesCache[0].value:"",value:0};})); } }
+    else if (mode === "func") area.appendChild(buildFunc());
+    else if (mode === "multi") area.appendChild(buildMulti());
+  }
+
+  cm.on("message", function (m) { $("msg").textContent = m || ""; });
+  cm.on("change", function (s) { $("undo").disabled = !s.canUndo; $("redo").disabled = !s.canRedo; });
+  cm.on("statechange", refreshMeta);
+  function renderJournalIdx() { const arr = cm.getJournal(); $("journal").innerHTML = arr.map(function (e) { return "[" + e.time + "] " + cm.journalText(e); }).join("\n"); }
+  cm.on("journal", renderJournalIdx);
+  $("clearJournal").addEventListener("click", function () { cm.clearJournal(); });
+
+  function labels() {
+    $("lblType").textContent = cm.t("f_type");
+    $("lblAnim").textContent = cm.t("animation");
+    $("lblTitle").textContent = cm.t("f_title");
+    $("lblDataset").textContent = cm.t("f_dataset");
+    $("lblBg").textContent = cm.t("bg_title");
+    var _dt = $("dataTitle"); if (_dt) { _dt.value = state.dataTitle || cm.t("f_data"); _dt.placeholder = cm.t("f_data"); }
+    $("lblExport").textContent = cm.t("export");
+    $("lblFilename").textContent = cm.t("exp_filename");
+    $("lblFormat").textContent = cm.t("exp_format");
+    $("lblW").textContent = cm.t("exp_width");
+    $("lblH").textContent = cm.t("exp_height");
+    $("lblLoad").textContent = cm.t("load_project");
+    $("lblImport").textContent = cm.t("import");
+    updateThemeBtn();
+    $("undo").textContent = cm.t("undo");
+    $("redo").textContent = cm.t("redo");
+    $("download").textContent = cm.t("exp_download_img");
+    $("print").textContent = cm.t("print");
+    $("save").textContent = cm.t("exp_save_project");
+    $("applyData").textContent = cm.t("apply_data");
+    $("bgRemove").textContent = cm.t("bg_remove");
+    const bt = $("bgType"); bt.options[0].textContent = cm.t("bg_transparent"); bt.options[1].textContent = cm.t("bg_color"); bt.options[2].textContent = cm.t("bg_image");
+    document.title = cm.t("page_title");
+    document.getElementById("metaDesc").content = cm.t("meta_desc");
+    $("h1").textContent = cm.t("hero_title");
+    $("lead").textContent = cm.t("hero_lead");
+    $("lblFootV").textContent = cm.t("foot_version"); $("footVersion").textContent = ChartMaker.version; var _ol=$("openlibsLink"); if(_ol) _ol.href="https://openlibs.dev/"+(document.documentElement.lang||"en")+"/app/chart-maker/";
+    $("lblFootC").textContent = cm.t("foot_created"); $("footCreated").textContent = "2026-09-08";
+    $("lblJournal").textContent = cm.t("journal"); $("clearJournal").textContent = cm.t("jr_clear");
+    document.querySelectorAll("[data-i18n]").forEach(function (n) { n.textContent = cm.t(n.getAttribute("data-i18n")); });
+    var _aa = $("allAppsLink"); if (_aa) _aa.href = "https://openlibs.dev/" + (document.documentElement.lang || "en") + "/app/";
+  }
+  function fillTypes() { const sel = $("type"); const cur = state.chartType; sel.innerHTML = ""; cm.getTypes().forEach(function (tp) { const o = document.createElement("option"); o.value = tp.key; o.textContent = tp.label; sel.appendChild(o); }); sel.value = cur; }
+  function dataView(s) { return s; }
+  function renderChartData() {
+    const box = $("chartData"); if (!box) return;
+    let lines = []; try { lines = cm.getDataLines() || []; } catch (e) { lines = []; }
+    if (!lines.length) { box.innerHTML = ""; box.removeAttribute("style"); return; }
+    const st = cm.getState(), th = cm.getTheme();
+    const bg = st.dataBgColor || ((st.bg && st.bg.type === "color" && st.bg.color) ? st.bg.color : th.surface);
+    box.style.background = bg; box.style.color = (st.dataTextColor || th.fg); box.style.padding = ".55rem .65rem"; box.style.borderRadius = ".375rem";
+    const head = document.createElement("h2"); head.textContent = (st.dataTitle || cm.t("f_data"));
+    box.innerHTML = ""; box.appendChild(head);
+    lines.forEach(function (ln) { const s = document.createElement("span"); s.className = "cd-item"; s.textContent = ln; box.appendChild(s); });
+  }
+  function refreshMeta() {
+    const s = cm.getState();
+    renderChartData();
+    $("type").value = s.chartType; $("title").value = s.title; $("dataset").value = s.datasetLabel;
+    $("subTitle").value = s.subtitle || "";
+    $("tension").value = (s.tension != null ? s.tension : 0);
+    $("steppedChk").checked = !!s.stepped; $("fillChk").checked = !!s.fill; $("spanGapsChk").checked = !!s.spanGaps;
+    $("stackedChk").checked = !!s.stacked; $("logYChk").checked = !!s.logY; $("decimationChk").checked = !!s.decimation;
+    $("datalabelsChk").checked = !!s.datalabels; $("zoomChk").checked = !!s.zoom; $("trendlineChk").checked = !!s.trendline; $("crosshairChk").checked = !!s.crosshair;
+    $("legendSel").value = (s.legend === "off" ? "off" : (s.legendPos || "top"));
+    $("pointRadius").value = (s.pointRadius != null ? s.pointRadius : 3);
+    $("lineWidth").value = (s.lineWidth != null ? s.lineWidth : 3);
+    $("dashedChk").checked = !!s.dashed;
+    $("anim").checked = cm.getAnimation();
+    $("animDur").value = (s.animDuration != null ? s.animDuration : 1000);
+    $("animEase").value = s.animEasing || "easeOutQuart";
+    $("bgType").value = s.bg.type;
+    $("bgColor").style.display = s.bg.type === "color" ? "" : "none";
+    $("bgImage").style.display = s.bg.type === "image" ? "" : "none";
+    $("bgRemove").style.display = (s.bg.type === "image" && s.bg.image) ? "" : "none";
+    var _th = cm.getTheme(); var _dfg = _th.fg || "#212529";
+    if ($("chartColor")) $("chartColor").value = s.chartColor || ((_th.palette && _th.palette[0]) || "#4e79a7");
+    if ($("gridColor")) $("gridColor").value = s.gridColor || "#888888";
+    if ($("titleColor")) $("titleColor").value = s.titleColor || _dfg;
+    if ($("legendColor")) $("legendColor").value = s.legendColor || _dfg;
+    if ($("tickColor")) $("tickColor").value = s.tickColor || _dfg;
+    if ($("dataTextColor")) $("dataTextColor").value = s.dataTextColor || _dfg;
+    if ($("dataBgColor")) $("dataBgColor").value = s.dataBgColor || ((s.bg && s.bg.type === "color" && s.bg.color) ? s.bg.color : (_th.surface || "#ffffff"));
+    $("data").value = JSON.stringify(dataView(s), null, 2);
+  }
+  function rebuildAll() { state = cm.getState(); labels(); fillTypes(); renderInputs(); refreshMeta(); renderJournalIdx(); }
+
+  function sortSelect(sel) { if (!sel) return; const cur = sel.value; Array.prototype.slice.call(sel.options).sort(function (a, b) { return a.value.localeCompare(b.value); }).forEach(function (o) { sel.appendChild(o); }); sel.value = cur; }
+  sortSelect($("locale")); sortSelect($("setLang"));
+  function useLocale(code) { return Promise.all([ChartMaker.loadLocaleJS(code, LOCALE_BASE + code + ".js").catch(function(e){ console.warn("Chart-Maker: locale not loaded —", (e && e.message) || e); }), ChartMaker.loadCountriesJS(code, LOCALE_BASE + "countries/" + code + ".js").catch(function(e){ console.warn("Chart-Maker: countries not loaded —", (e && e.message) || e); }), (cm.getState().chartType === "geo" ? cm.getCountries().catch(function(){}) : Promise.resolve())]).then(function () { document.documentElement.lang = code; document.documentElement.dir = (['ar','he','fa'].indexOf(code) >= 0 ? 'rtl' : 'ltr'); cm.setLocale(code); countriesCache = null; try { localStorage.setItem("cm_lang", code); } catch (e) {} rebuildAll(); var hs = $("locale"); if (hs) hs.value = code; var sl = $("setLang"); if (sl) sl.value = code; }); }
+  var _sel = $("locale"); if (_sel) _sel.value = LANG;
+  useLocale(LANG).then(function () { cm.log("j_start", "info"); cm.log("f_type", "action", cm.t("type_" + cm.getState().chartType)); });
+
+  $("locale").addEventListener("change", function (e) { useLocale(e.target.value); });
+  const mql = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+  function prefersDark() { return !!(mql && mql.matches); }
+  function updateThemeBtn() { var b = $("themeBtn"); if (b) b.textContent = cm.t(themeMode === "auto" ? "theme_auto" : (darkMode ? "theme_dark" : "theme_light")); }
+  function applyTheme(mode) {
+    themeMode = mode;
+    darkMode = (mode === "dark") || (mode === "auto" && prefersDark());
+    document.body.classList.toggle("dark", darkMode);
+    cm.setTheme(darkMode ? THEME_DARK : THEME_LIGHT);
+    updateThemeBtn();
+    var st = $("setTheme"); if (st) st.value = themeMode;
+    try { renderChartData(); } catch (e) {}
+  }
+  if (mql && mql.addEventListener) mql.addEventListener("change", function () { if (themeMode === "auto") applyTheme("auto"); });
+  applyTheme(themeMode);
+  $("setTheme").addEventListener("change", function (e) { applyTheme(e.target.value); });
+
+  function openSettings() { $("settingsModal").classList.add("open"); var sl = $("setLang"); if (sl) sl.value = (document.documentElement.lang || LANG); }
+  function closeSettings() { $("settingsModal").classList.remove("open"); }
+  $("settingsBtn").addEventListener("click", openSettings);
+  $("settingsClose").addEventListener("click", closeSettings);
+  $("settingsModal").addEventListener("click", function (e) { if (e.target === $("settingsModal")) closeSettings(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeSettings(); });
+  $("setLang").addEventListener("change", function (e) { var c = e.target.value; var hs = $("locale"); if (hs) hs.value = c; useLocale(c); });
+
+  $("anim").addEventListener("change", function (e) { cm.setAnimation(e.target.checked); });
+  $("animDur").addEventListener("change", function (e) { state.animDuration = Number(e.target.value); commit(); });
+  $("animEase").addEventListener("change", function (e) { state.animEasing = e.target.value; commit(); });
+  $("subTitle").addEventListener("change", function (e) { state.subtitle = e.target.value; commit(); });
+  $("tension").addEventListener("change", function (e) { state.tension = Number(e.target.value); commit(); });
+  $("steppedChk").addEventListener("change", function (e) { state.stepped = e.target.checked; commit(); });
+  $("fillChk").addEventListener("change", function (e) { state.fill = e.target.checked; commit(); });
+  $("spanGapsChk").addEventListener("change", function (e) { state.spanGaps = e.target.checked; commit(); });
+  $("stackedChk").addEventListener("change", function (e) { state.stacked = e.target.checked; commit(); });
+  $("logYChk").addEventListener("change", function (e) { state.logY = e.target.checked; commit(); });
+  $("decimationChk").addEventListener("change", function (e) { state.decimation = e.target.checked; commit(); });
+  $("datalabelsChk").addEventListener("change", function (e) { state.datalabels = e.target.checked; commit(); });
+  $("legendSel").addEventListener("change", function (e) { state.legend = e.target.value === "off" ? "off" : "on"; state.legendPos = e.target.value === "off" ? (state.legendPos || "top") : e.target.value; commit(); });
+  $("pointRadius").addEventListener("change", function (e) { state.pointRadius = Number(e.target.value); commit(); });
+  $("lineWidth").addEventListener("change", function (e) { state.lineWidth = Number(e.target.value); commit(); });
+  $("dashedChk").addEventListener("change", function (e) { state.dashed = e.target.checked; commit(); });
+  $("zoomChk").addEventListener("change", function (e) { state.zoom = e.target.checked; commit(); });
+  $("trendlineChk").addEventListener("change", function (e) { state.trendline = e.target.checked; commit(); });
+  $("crosshairChk").addEventListener("change", function (e) { state.crosshair = e.target.checked; commit(); });
+  $("addAnnBtn").addEventListener("click", function () { if (!state.annotations) state.annotations = []; state.annotations.push({ type:"line", axis:"y", value:0, value2:0, label:"", color:"#e15759" }); commit(); buildAnnUI(); });
+  $("type").addEventListener("change", function (e) { state.chartType = e.target.value; renderInputs(); commit(); cm.log("j_type", "action", cm.t("type_" + e.target.value)); });
+  $("title").addEventListener("change", function (e) { state.title = e.target.value; commit(); });
+  $("dataset").addEventListener("change", function (e) { state.datasetLabel = e.target.value; commit(); });
+  $("dataTitle").addEventListener("change", function (e) { state.dataTitle = e.target.value; commit(); renderChartData(); });
+  $("bgType").addEventListener("change", function (e) { state.bg.type = e.target.value; refreshMeta(); commit(); });
+  $("bgColor").addEventListener("change", function (e) { state.bg.color = e.target.value; commit(); });
+  $("bgImage").addEventListener("change", function (e) { const f = e.target.files && e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = function () { state.bg.image = r.result; commit(); refreshMeta(); }; r.readAsDataURL(f); });
+  $("bgRemove").addEventListener("click", function () { state.bg.type = "transparent"; state.bg.image = null; refreshMeta(); commit(); });
+  $("chartColor").addEventListener("change", function (e) { state.chartColor = e.target.value; commit(); });
+  $("gridColor").addEventListener("change", function (e) { state.gridColor = e.target.value; commit(); });
+  $("titleColor").addEventListener("change", function (e) { state.titleColor = e.target.value; commit(); });
+  $("legendColor").addEventListener("change", function (e) { state.legendColor = e.target.value; commit(); });
+  $("tickColor").addEventListener("change", function (e) { state.tickColor = e.target.value; commit(); });
+  $("dataTextColor").addEventListener("change", function (e) { state.dataTextColor = e.target.value; commit(); renderChartData(); });
+  $("dataBgColor").addEventListener("change", function (e) { state.dataBgColor = e.target.value; commit(); renderChartData(); });
+  $("colorsReset").addEventListener("click", function () { state.chartColor = ""; state.gridColor = ""; state.titleColor = ""; state.legendColor = ""; state.tickColor = ""; state.dataTextColor = ""; state.dataBgColor = ""; refreshMeta(); commit(); renderChartData(); });
+  $("applyData").addEventListener("click", function () { try { state = Object.assign(cm.getState(), JSON.parse($("data").value)); commit(); renderInputs(); refreshMeta(); } catch (err) { $("msg").textContent = "JSON error: " + err.message; } });
+  $("undo").addEventListener("click", function () { cm.undo(); state = cm.getState(); renderInputs(); refreshMeta(); cm.log("j_undo", "action"); });
+  $("redo").addEventListener("click", function () { cm.redo(); state = cm.getState(); renderInputs(); refreshMeta(); cm.log("j_redo", "action"); });
+  $("download").addEventListener("click", function () { cm.exportImage({ format:$("format").value, filename:$("filename").value, width:parseInt($("w").value,10)||0, height:parseInt($("h").value,10)||0, includeData:$("expData").checked }); });
+  $("print").addEventListener("click", function () { cm.printChart({ filename:$("filename").value, includeData:$("expData").checked }); });
+  $("save").addEventListener("click", function () { cm.saveProject({ filename:$("filename").value }); cm.log("j_save_project", "action"); });
+  $("load").addEventListener("change", function (e) { const f = e.target.files && e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = function () { try { cm.loadProject(JSON.parse(r.result)); state = cm.getState(); renderInputs(); refreshMeta(); } catch (err) { $("msg").textContent = "JSON error: " + err.message; } }; r.readAsText(f); });
+})();
+</script>
+</body>
+</html>
