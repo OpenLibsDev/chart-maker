@@ -1,0 +1,65 @@
+{
+  "name": "@openlibsdev/chart-maker",
+  "version": "1.0.0",
+  "description": "Headless, API-driven chart & graph engine on Chart.js 4, with a localized web UI (29 chart types, 29 languages, PNG/JPEG/WEBP/AVIF/SVG/PDF export).",
+  "author": "openlibs",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/umd/chart-maker.umd.js",
+  "module": "dist/esm/chart-maker.esm.js",
+  "browser": "dist/umd/chart-maker.umd.min.js",
+  "types": "chart-maker.d.ts",
+  "exports": {
+    ".": {
+      "types": "./chart-maker.d.ts",
+      "import": "./dist/esm/chart-maker.esm.js",
+      "require": "./dist/umd/chart-maker.umd.js",
+      "default": "./dist/esm/chart-maker.esm.js"
+    }
+  },
+  "files": [
+    "dist/",
+    "src/",
+    "chart-maker.d.ts",
+    "build.mjs"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node tests/smoke.js && node tests/locale-export.js",
+    "prepublishOnly": "node build.mjs && npm test"
+  },
+  "peerDependencies": {
+    "chart.js": "^4.4.1"
+  },
+  "keywords": [
+    "chart",
+    "charts",
+    "chart.js",
+    "graph",
+    "diagram",
+    "visualization",
+    "dataviz",
+    "esm",
+    "umd",
+    "headless",
+    "i18n",
+    "choropleth",
+    "sankey",
+    "treemap",
+    "svg",
+    "pdf",
+    "export"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/openlibsdev/chart-maker.git"
+  },
+  "homepage": "https://openlibs.dev/en/app/chart-maker/",
+  "bugs": {
+    "url": "https://github.com/openlibsdev/chart-maker/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
