@@ -1,5 +1,5 @@
 /*!
- * Chart-Maker v1.0.0 - chart & graph engine library (API-driven, headless, ES module).
+ * Chart-Maker v1.0.1 - chart & graph engine library (API-driven, headless, ES module).
  * Renders 21 chart types into a <canvas> in a container you provide.
  * No UI, no CSS beyond the canvas - build controls yourself and call the API.
  * Dependency: Chart.js (load first). Optional chart libs load on demand.
@@ -17,7 +17,7 @@
 const locales = {};
 
 /* ===== APP CONFIG ===== */
-const APP = { name: "Chart-Maker", version: "1.0.0" };
+const APP = { name: "Chart-Maker", version: "1.0.1" };
 
 let WORLD_URL = "";
 

@@ -99,6 +99,49 @@ The loader is peer-aware: if Chart.js (and any plugins) are already present as g
 
 The `demo/` folder contains complete ESM and UMD example pages.
 
+## Localization (i18n)
+
+The library ships **29 UI languages**, but **no locale is bundled into the core** — you load the ones you need (English included). Translated country names for the choropleth map are shipped as separate "country packs".
+
+There are three ways to load a locale:
+
+**1. From a CDN by URL** — simplest, works with any setup:
+
+```js
+import ChartMaker from "@openlibsdev/chart-maker";
+const BASE = "https://cdn.jsdelivr.net/npm/@openlibsdev/chart-maker@1.0.1/dist/esm/locales/";
+await ChartMaker.loadLocaleJSON("uk", BASE + "uk.json");
+const cm = ChartMaker.create("#chart", { locale: "uk" });
+```
+
+**2. Self-hosted** — copy `dist/esm/locales/` to your public folder and point to it:
+
+```js
+await ChartMaker.loadLocaleJSON("uk", "/assets/locales/uk.json");
+```
+
+**3. Bundled import** (webpack / Vite / Rollup) — baked into your build, no runtime fetch:
+
+```js
+import ChartMaker from "@openlibsdev/chart-maker";
+import uk from "@openlibsdev/chart-maker/locales/uk.json";
+ChartMaker.registerLocale("uk", uk);
+const cm = ChartMaker.create("#chart", { locale: "uk" });
+```
+
+> In pure Node ESM, add an import attribute: `import uk from "@openlibsdev/chart-maker/locales/uk.json" with { type: "json" };`. Bundlers accept the plain form above.
+
+On a plain UMD page you can also load a `locales/*.js` pack via `<script>` with `ChartMaker.loadLocaleJS(code, url)`.
+
+Country names for the choropleth map load the same way (from the `countries/` subfolder):
+
+```js
+await ChartMaker.loadCountriesJSON("uk", BASE + "countries/uk.json");
+// bundled: import ukCountries from "@openlibsdev/chart-maker/locales/countries/uk.json";
+```
+
+**Available locale codes:** `ar` `bo` `ca` `cs` `de` `en` `es` `eu` `fa` `fr` `he` `hi` `hr` `hu` `id` `is` `it` `ja` `ko` `pl` `pt-BR` `pt` `ro` `ru` `sq` `tr` `uk` `zh-Hans` `zh-Hant`
+
 ## Chart types & required packages
 
 | Type | Input | Extra package |

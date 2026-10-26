@@ -1,11 +1,11 @@
 {
   "name": "@openlibsdev/chart-maker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Headless, API-driven chart & graph engine on Chart.js 4, with a localized web UI (29 chart types, 29 languages, PNG/JPEG/WEBP/AVIF/SVG/PDF export).",
   "author": "openlibs",
   "license": "MIT",
   "type": "module",
-  "main": "dist/umd/chart-maker.umd.js",
+  "main": "dist/umd/chart-maker.umd.cjs",
   "module": "dist/esm/chart-maker.esm.js",
   "browser": "dist/umd/chart-maker.umd.min.js",
   "types": "chart-maker.d.ts",
@@ -13,9 +13,12 @@
     ".": {
       "types": "./chart-maker.d.ts",
       "import": "./dist/esm/chart-maker.esm.js",
-      "require": "./dist/umd/chart-maker.umd.js",
+      "require": "./dist/umd/chart-maker.umd.cjs",
       "default": "./dist/esm/chart-maker.esm.js"
-    }
+    },
+    "./locales/*": "./dist/esm/locales/*",
+    "./dist/*": "./dist/*",
+    "./package.json": "./package.json"
   },
   "files": [
     "dist/",

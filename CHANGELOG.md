@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here. The project follows [Semantic Versioning](https://semver.org/).
 
+## 1.0.1
+
+- Fixed CommonJS `require()`: the package is `"type": "module"`, so the old `.umd.js` require target was loaded as ESM and failed. Node now resolves `require()`/`main` to a dedicated `dist/umd/chart-maker.umd.cjs`.
+- Added `exports` subpaths so locale and `dist` files can be imported directly with a bundler, e.g. `import uk from "@openlibsdev/chart-maker/locales/uk.json"`.
+- Documented localization in the README: three ways to load locale packs (CDN URL, self-hosted, bundled import), country packs, and the full list of language codes.
+
 ## 1.0.0
 
 First public release.

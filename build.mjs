@@ -63,6 +63,9 @@ const umd=header+"\n(function (root, factory) {\n"+
 fs.mkdirSync("dist/umd",{recursive:true});
 fs.writeFileSync("dist/umd/chart-maker.umd.js",umd);
 fs.writeFileSync("dist/umd/chart-maker.umd.min.js",minify(umd));
+/* CommonJS entry for Node `require()`: a .cjs is always treated as CommonJS,
+   so the UMD `module.exports` branch is taken even though the package is "type":"module". */
+fs.writeFileSync("dist/umd/chart-maker.umd.cjs",umd);
 function copyLocales(srcDir,destDir,ext){fs.mkdirSync(destDir,{recursive:true});fs.mkdirSync(path.join(destDir,"countries"),{recursive:true});
  for(const f of fs.readdirSync(srcDir)){if(f.endsWith("."+ext))fs.copyFileSync(path.join(srcDir,f),path.join(destDir,f));}
  const cd=path.join(srcDir,"countries");if(fs.existsSync(cd))for(const f of fs.readdirSync(cd)){if(f.endsWith("."+ext))fs.copyFileSync(path.join(cd,f),path.join(destDir,"countries",f));}}
